@@ -1,0 +1,18 @@
+<?php
+
+namespace App;
+
+use SmsTools2\Models\SmsMessage as BaseSmsMessage;
+
+/**
+ * Outbound SMS. Optional hooks (run on the queue):
+ *
+ *   public function afterMessageQueued() {}             // accepted by the platform
+ *   public function afterMessageDelivered() {}          // delivered to the handset
+ *   public function afterMessageFailed() {}             // failed, rejected or expired
+ *   public function afterMessageReplied($reply) {}      // the recipient replied
+ */
+class SmsMessage extends BaseSmsMessage
+{
+    //
+}

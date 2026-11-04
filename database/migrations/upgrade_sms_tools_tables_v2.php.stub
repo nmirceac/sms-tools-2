@@ -1,0 +1,60 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * sms-tools-2: upgrade the tables created by sms-tools 0.x.
+ * Only adds what is missing; existing rows and columns are left untouched.
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        $connection = config('sms-tools.messages.connection');
+        $tableName = config('sms-tools.messages.table', 'sms_messages');
+        $schema = Schema::connection($connection);
+
+        $add = [
+            'gateway_ulid' => fn (Blueprint $t) => $t->string('gateway_ulid', 26)->nullable()->index(),
+            'reference' => fn (Blueprint $t) => $t->uuid('reference')->nullable()->index(),
+            'status' => fn (Blueprint $t) => $t->string('status', 16)->nullable()->index(),
+            'status_description' => fn (Blueprint $t) => $t->string('status_description')->nullable(),
+            'parts' => fn (Blueprint $t) => $t->unsignedTinyInteger('parts')->nullable(),
+            'failed_at' => fn (Blueprint $t) => $t->dateTime('failed_at')->nullable(),
+            'replied_at' => fn (Blueprint $t) => $t->dateTime('replied_at')->nullable(),
+        ];
+
+        foreach ($add as $column => $definition) {
+            if (! $schema->hasColumn($tableName, $column)) {
+                $schema->table($tableName, fn (Blueprint $table) => $definition($table));
+            }
+        }
+
+        // Derive a status for existing rows from the 0.x boolean flags.
+        $db = $schema->getConnection()->table($tableName);
+        $db->clone()->whereNull('status')->where('delivered', true)->update(['status' => 'delivered']);
+        $db->clone()->whereNull('status')->where('failed', true)->update(['status' => 'failed']);
+        $db->clone()->whereNull('status')->where('sent', true)->update(['status' => 'sent']);
+        $db->clone()->whereNull('status')->where('queued', true)->update(['status' => 'submitted']);
+        $db->clone()->whereNull('status')->update(['status' => 'pending']);
+    }
+
+    public function down(): void
+    {
+        $schema = Schema::connection(config('sms-tools.messages.connection'));
+        $tableName = config('sms-tools.messages.table', 'sms_messages');
+
+        foreach (['gateway_ulid', 'reference', 'status', 'status_description', 'parts', 'failed_at', 'replied_at'] as $column) {
+            if ($schema->hasColumn($tableName, $column)) {
+                $schema->table($tableName, function (Blueprint $table) use ($column, $tableName) {
+                    if (in_array($column, ['gateway_ulid', 'reference', 'status'], true)) {
+                        $table->dropIndex($tableName.'_'.$column.'_index');
+                    }
+                    $table->dropColumn($column);
+                });
+            }
+        }
+    }
+};

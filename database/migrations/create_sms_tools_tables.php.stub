@@ -1,0 +1,57 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * sms-tools-2: tables for a new installation.
+ * (Upgrading from sms-tools 0.x? Use the "upgrade" migration instead.)
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        $messages = config('sms-tools.messages');
+        Schema::connection($messages['connection'] ?? null)->create($messages['table'] ?? 'sms_messages', function (Blueprint $table) {
+            $table->id();
+            $table->string('gateway_ulid', 26)->nullable()->index();   // platform message id
+            $table->unsignedBigInteger('gateway_id')->nullable()->index(); // platform legacy (v1) id, if any
+            $table->uuid('reference')->nullable()->index();             // idempotency key sent to the platform
+            $table->string('recipient', 20)->index();
+            $table->text('content');
+            $table->string('status', 16)->default('pending')->index();
+            $table->string('status_description')->nullable();
+            $table->unsignedTinyInteger('parts')->nullable();
+            $table->boolean('queued')->default(false);
+            $table->boolean('sent')->default(false);
+            $table->boolean('delivered')->default(false);
+            $table->boolean('failed')->default(false);
+            $table->boolean('replied')->default(false);
+            $table->text('deliveries')->nullable();
+            $table->text('replies')->nullable();
+            $table->text('details')->nullable();
+            $table->timestamps();
+            $table->dateTime('delivered_at')->nullable();
+            $table->dateTime('failed_at')->nullable();
+            $table->dateTime('replied_at')->nullable();
+        });
+
+        $inbound = config('sms-tools.inbound');
+        Schema::connection($inbound['connection'] ?? null)->create($inbound['table'] ?? 'sms_inbound', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('gateway_id')->nullable()->index();
+            $table->text('content');
+            $table->string('recipient', 20)->index();
+            $table->string('sender', 20)->index();
+            $table->text('details')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::connection(config('sms-tools.inbound.connection'))->dropIfExists(config('sms-tools.inbound.table', 'sms_inbound'));
+        Schema::connection(config('sms-tools.messages.connection'))->dropIfExists(config('sms-tools.messages.table', 'sms_messages'));
+    }
+};

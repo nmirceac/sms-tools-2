@@ -1,0 +1,15 @@
+<?php
+
+namespace App;
+
+use SmsTools2\Models\SmsInbound as BaseSmsInbound;
+
+/**
+ * Unsolicited inbound SMS (not a reply to one of your messages). Optional hook:
+ *
+ *   public function afterMessageReceived() {}
+ */
+class SmsInbound extends BaseSmsInbound
+{
+    //
+}
