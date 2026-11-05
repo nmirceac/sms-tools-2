@@ -9,10 +9,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { php: '8.1', laravel: '10.*', testbench: '8.*' }
-          - { php: '8.2', laravel: '11.*', testbench: '9.*' }
-          - { php: '8.3', laravel: '12.*', testbench: '10.*' }
-          - { php: '8.4', laravel: '13.*', testbench: '11.*' }
+          # Laravel 10 and 11 are end-of-life: every release has unpatched security
+          # advisories, which Composer blocks by default. We still test against them.
+          - { php: '8.1', laravel: '10.*', testbench: '8.*', eol: true }
+          - { php: '8.2', laravel: '11.*', testbench: '9.*', eol: true }
+          - { php: '8.3', laravel: '12.*', testbench: '10.*', eol: false }
+          - { php: '8.4', laravel: '13.*', testbench: '11.*', eol: false }
     name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +23,8 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: pdo_sqlite
           coverage: none
+      - if: matrix.eol
+        run: composer config policy.advisories.block false
       - run: composer require "illuminate/support:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
       - run: composer update --prefer-dist --no-interaction --with-all-dependencies
       - run: vendor/bin/phpunit
