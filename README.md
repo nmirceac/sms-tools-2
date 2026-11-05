@@ -105,7 +105,7 @@ class SmsMessage extends \SmsTools2\Models\SmsMessage
 {
     public function afterMessageQueued() {}          // accepted by the platform
     public function afterMessageDelivered() {}       // delivered
-    public function afterMessageFailed() {}          // failed, rejected or expired (new in 2.x)
+    public function afterMessageFailed() {}          // failed, rejected or expired (new in sms-tools-2)
     public function afterMessageReplied($reply) {}   // ['content', 'sender', 'recipient', 'received_at', ...]
 }
 

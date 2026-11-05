@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (unreleased)
+## 0.0.3 (2026-11-05), pre-release
 
 First release, successor of `nmirceac/sms-tools` 0.x:
 - Talks to API v2 (bearer token), not v1.
