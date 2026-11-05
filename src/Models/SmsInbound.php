@@ -4,6 +4,7 @@ namespace SmsTools2\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use SmsTools2\SmsTools;
 
 /**
  * An unsolicited inbound SMS (not a reply to one of your messages).
@@ -68,7 +69,7 @@ class SmsInbound extends Model
             'details' => $data,
         ]);
         if (! empty($data['received_at'])) {
-            $inbound->created_at = Carbon::parse((string) $data['received_at']);
+            $inbound->created_at = SmsTools::localTime((string) $data['received_at']);
         }
         $inbound->save();
 

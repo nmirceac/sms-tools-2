@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix: `delivered_at`, `failed_at`, `replied_at` and inbound `created_at` were stored in UTC clock time. The platform sends UTC; they are now converted to the app's timezone first, like Eloquent's own timestamps. Apps on UTC are unaffected; on SAST, rows written by 0.0.3/0.0.4 are 2 hours early.
+
 ## 0.0.4 (2026-11-05), pre-release
 
 - Require `guzzlehttp/guzzle` (^7.5 or ^8). Laravel 10's HTTP client only suggests it, so a Laravel 10 app without Guzzle could not send.

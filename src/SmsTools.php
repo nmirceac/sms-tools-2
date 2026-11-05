@@ -2,6 +2,7 @@
 
 namespace SmsTools2;
 
+use Illuminate\Support\Carbon;
 use SmsTools2\Models\SmsInbound;
 use SmsTools2\Models\SmsMessage;
 
@@ -35,5 +36,14 @@ final class SmsTools
         }
 
         return $job;
+    }
+
+    /**
+     * A platform timestamp (UTC, "…Z") in the app's timezone, the one now() and Eloquent's
+     * own timestamps use. Times without a zone are read in that timezone already.
+     */
+    public static function localTime(string $value): Carbon
+    {
+        return Carbon::parse($value)->setTimezone(date_default_timezone_get());
     }
 }

@@ -245,9 +245,13 @@ class SmsMessage extends Model
         $this->failed = $status->isFailure();
     }
 
+    /**
+     * Parse a platform time (UTC, "…Z") into the app's timezone. Eloquent stores a date's
+     * clock time as-is, so without this a non-UTC app would store UTC times.
+     */
     protected function date(mixed $value): ?Carbon
     {
-        return is_string($value) && $value !== '' ? Carbon::parse($value) : null;
+        return is_string($value) && $value !== '' ? SmsTools::localTime($value) : null;
     }
 
     /** Digits only (the platform normalises the number and returns it in E.164). */
