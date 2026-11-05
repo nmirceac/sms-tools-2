@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Laravel client for the WeAnswer SMS Toolkit (API v2): send SMS, track delivery and receive replies via signed webhooks.",
     "keywords": ["sms", "laravel", "sms-tools", "weanswer", "cm.com", "webhooks"],
-    "homepage": "https://github.com/nmirceac/smsTools2",
+    "homepage": "https://github.com/nmirceac/sms-tools-2",
     "license": "proprietary",
     "authors": [
         {
