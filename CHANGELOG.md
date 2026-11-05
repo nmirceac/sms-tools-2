@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.4 (2026-11-05), pre-release
 
 - Require `guzzlehttp/guzzle` (^7.5 or ^8). Laravel 10's HTTP client only suggests it, so a Laravel 10 app without Guzzle could not send.
 - The dist archive no longer includes tests and tooling files.
